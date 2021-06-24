@@ -1,0 +1,5 @@
+protobuf
+grpcio
+-i http://livetest.bilibili.co/devpi/root/dev/+simple/
+--trusted-host livetest.bilibili.co
+invoker

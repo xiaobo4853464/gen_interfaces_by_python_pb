@@ -1,0 +1,296 @@
+syntax = "proto3";
+package live.livedm.v1;
+option go_package = "v1";
+
+import "data/gogo.proto";
+import "google/protobuf/empty.proto";
+// import "google/api/annotations.proto";
+
+service DM {
+    //服务相关接口
+    //发送弹幕
+    rpc SendMsg(SendMsgReq) returns (SendMsgResp);
+    //获取弹幕历史
+    rpc GetHistory(HistoryReq) returns (HistoryResp);
+    //删除历史弹幕
+    rpc DelHistoryDMByRoomid (DelHistoryDMByRoomidReq) returns (DelHistoryDMByRoomidResp);
+
+
+    //后台相关接口
+    //获取先审后发配置列表
+    rpc AuditContentConfList (AudiContentConfListReq) returns (AudiContentConfListResp);
+    //新增先审后发配置
+    rpc CreateAuditContentConf (CreateAuditContentConfReq) returns (google.protobuf.Empty);
+    //修改先审后发配置
+    rpc UdateAuditContentConf (UpdateAuditContentConfReq) returns (google.protobuf.Empty);
+    //删除先审后发配置
+    rpc DeleteAuditContentConf (DeleteAuditContentConfReq) returns (google.protobuf.Empty);
+    //查询先审后发配置
+    rpc GetAuditContentConf (GetAuditContentConfReq) returns (GetAuditContentConfResp);
+    //注册审核人数
+    rpc SetAuditorNum (SetAuditorNumReq) returns (google.protobuf.Empty);
+    //获取当前审核人数以及弹幕池弹幕数量
+    rpc GetAuditorNumAndDanmuNum (GetAuditorNumAndDanmuNumReq) returns (GetAuditorNumAndDanmuNumResp);
+    //获取待审核弹幕列表
+    rpc GetDanmuLists (GetDanmuListsReq) returns (GetDanmuListsResp);
+    //审核通过发送弹幕内容
+    rpc SetDanmuSendList (SetDanmuSendListReq) returns (google.protobuf.Empty);
+    // rpc SetDanmuSendList (SetDanmuSendListReq) returns (google.protobuf.Empty){
+    //     option (google.api.http) = {
+    //         post:"/live.livedm.v1.DM/SetDanmuSendList"
+    //     };
+    // };
+    // 先审后发后台封禁
+	rpc AuditBan(AuditBanReq)returns(google.protobuf.Empty);
+	// 先审后发后获取用户封禁信息
+	rpc AuditBanInfo(AuditBanInfoReq)returns(AuditBanInfoResp);
+}
+
+message SendMsgReq {
+    //用户uid
+    int64  uid       = 1  [(gogoproto.moretags) = 'form:"uid" validate:"required"'];
+    //发送弹幕房间号
+    int64  roomid    = 2  [(gogoproto.moretags) = 'form:"roomid" validate:"required"'];
+    //发送弹幕消息内容
+    string msg       = 3  [(gogoproto.moretags) = 'form:"msg" validate:"required"'];
+    //发送弹幕时，端上用于和本地mock的去重值
+    string rnd       = 4  [(gogoproto.moretags) = 'form:"rnd"'];
+    //用户ip
+    string ip        = 5  [(gogoproto.moretags) = 'form:"ip"'];
+    //发送弹幕字体大小
+    int64  fontsize  = 7  [(gogoproto.moretags) = 'form:"fontsize" validate:"gte=0"'];
+    //发送弹幕时，弹幕在播放器渲染的位置
+    int64  mode      = 8  [(gogoproto.moretags) = 'form:"mode" validate:"gte=0"'];
+    //弹幕发送平台
+    string platform  = 9  [(gogoproto.moretags) = 'form:"platform"'];
+    //弹幕消息类型  0 普通弹幕 1 抽奖弹幕(节奏风暴) 2小电视抽奖(天选之人)  3 弹幕抽奖(已替换为2)  4 连麦信息 5 回放弹幕
+    int64  msgtype   = 10 [(gogoproto.moretags) = 'form:"msgtype" validate:"gte=0"'];
+    //弹幕发送气泡框
+    int64  bubble    = 11 [(gogoproto.moretags) = 'form:"bubble"'];
+    //大数据上报信息
+    lancer lancer    = 12 [(gogoproto.moretags) = 'form:"lancer"'];
+    //风控结果
+    int64 riskResult = 13 [(gogoproto.moretags) = 'form:"riskResult"'];
+    //非用户发送弹幕类型  节奏风暴=1 道具抽奖=2 弹幕抽奖=3  连麦信息=4  回放弹幕=5 主播抽奖=6
+    int64 not_ordinary_msgtype = 14 [(gogoproto.moretags) = 'form:"not_ordinary_msgtype"'];
+}
+
+message lancer {
+    string buvid            = 1  [(gogoproto.moretags) = 'form:"buvid"'];  //设备号
+    string userAgent        = 2  [(gogoproto.moretags) = 'form:"userAgent"'];
+    string refer            = 3  [(gogoproto.moretags) = 'form:"refer"'];
+    string cookie           = 4  [(gogoproto.moretags) = 'form:"cookie"'];
+    int64  build            = 5  [(gogoproto.moretags) = 'form:"build"']; //build号
+    string version          = 6  [(gogoproto.moretags) = 'form:"version"']; //客户端版本
+    string session_id       = 7  [(gogoproto.moretags) = 'form:"session_id"']; //卡片id                                      公共参数
+    string launch_id        = 8  [(gogoproto.moretags) = 'form:"launch_id"']; //投放卡id                                     公共参数
+    int64  jumpfrom         = 9  [(gogoproto.moretags) = 'form:"jumpfrom"']; //直播间渠道来源                                 公共参数
+    string jumpfrom_extend  = 10 [(gogoproto.moretags) = 'form:"jumpfrom_extend"']; //直播间渠道来源辅助参数（埋点里的spm_id）  公共参数
+    string mobi_app         = 11 [(gogoproto.moretags) = 'form:"mobi_app"']; //应用名称（用来区分ipad，ios）
+    string app_id           = 12 [(gogoproto.moretags) = 'form:"app_id"']; //app的区分id （可以区分hd）
+    string simple_id        = 13 [(gogoproto.moretags) = 'form:"simple_id"']; //关注simple_id：唯一一次上下拉的列表id          公共参数
+    string screen_status    = 14 [(gogoproto.moretags) = 'form:"screen_status"']; //横竖屏状态                                公共参数
+    string live_status      = 15 [(gogoproto.moretags) = 'form:"live_status"']; //直播间状态                                  公共参数
+    string av_id            = 16 [(gogoproto.moretags) = 'form:"av_id"']; //视频id                                            公共参数
+    string flow_extend      = 17 [(gogoproto.moretags) = 'form:"flow_extend"']; //放流量相关的公共参数                         公共参数
+    string bussiness_extend = 18 [(gogoproto.moretags) = 'form:"bussiness_extend"']; //业务相关的公共参数                      公共参数
+    string data_extend      = 19 [(gogoproto.moretags) = 'form:"data_extend"']; //存放数仓串联类的公共参数                      公共参数
+}
+
+message SendMsgResp {
+    bool   isLimit  = 1 [(gogoproto.jsontag) = "islimit"];
+    string limitMsg = 2 [(gogoproto.jsontag) = "limitmsg"];
+    int32  code    = 3 [(gogoproto.jsontag) = "code"];
+}
+
+message HistoryReq {
+    int64 roomid = 1 [(gogoproto.moretags) = 'form:"roomid" validate:"required"'];
+}
+
+message HistoryResp{
+    repeated string room  = 1 [(gogoproto.jsontag) = "room"];
+    repeated string admin = 2 [(gogoproto.jsontag) = "admin"];
+}
+
+message ErrMsg {
+    string message =1;
+}
+
+message DelHistoryDMByRoomidReq {
+    int64 roomid = 1 [(gogoproto.moretags) = 'form:"room_id" validate:"required"'];
+}
+
+message DelHistoryDMByRoomidResp {
+}
+
+message AudiContentConfListReq {
+    //第几页,默认为1
+	int32 page     = 1 [(gogoproto.moretags) = 'form:"page"'];
+	//每页多少行,默认20行
+	int32 pagesize = 2 [(gogoproto.moretags) = 'form:"pagesize"'];
+}
+
+message ConfContent {
+    //配置id
+    int32  id        = 1 [(gogoproto.jsontag) = "id"];
+    //配置名称
+    string conf_title  = 2 [(gogoproto.jsontag) = "conf_title"];
+    //生效范围  0 表示直播间 1表示全局
+    int32  conf_type  = 3 [(gogoproto.jsontag) = "conf_type"];
+    //配置开始时间  时间格式为 2006-01-02 15:04:05
+    string start_time = 4 [(gogoproto.jsontag) = "start_time"];
+    //配置关闭时间  时间格式为 2006-01-02 15:04:05
+    string end_time   = 5 [(gogoproto.jsontag) = "end_time"];
+    //配置状态  0 表示未生效 1表示生效中 2表示已过期
+    int32  status    = 6 [(gogoproto.jsontag) = "status"];
+    //弹幕过期时间
+    int32 expire_time = 7 [(gogoproto.jsontag) = "expire_time"];
+
+}
+
+message AudiContentConfListResp {
+    //配置内容
+    repeated ConfContent Data = 1 [(gogoproto.jsontag) = "data"];
+    //第几页,默认为1
+	int32 page     = 2 [(gogoproto.moretags) = 'form:"page"'];
+	//每页多少行,默认20行
+    int32 pagesize = 3 [(gogoproto.moretags) = 'form:"pagesize"'];
+    //配置总条数
+    int32 totalnum = 4 [(gogoproto.moretags) = 'form:"totalnum"'];
+}
+
+message CreateAuditContentConfReq {
+    //配置名称
+    string conf_title        = 1 [(gogoproto.moretags) = 'form:"conf_title" validate:"required"'];
+    //生效范围  0 表示直播间 1表示全局
+    int32  conf_type        = 2 [(gogoproto.moretags) = 'form:"conf_type"'];
+    //配置开始时间  时间格式为 2006-01-02 15:04:05
+    string start_time       = 3 [(gogoproto.moretags) = 'form:"start_time" validate:"required"'];
+    //配置关闭时间  时间格式为 2006-01-02 15:04:05
+    string end_time         = 4 [(gogoproto.moretags) = 'form:"end_time" validate:"required"'];
+    //配置生效房间号
+    repeated int32 roomids = 5 [(gogoproto.moretags) = 'form:"roomids"'];
+}
+
+message UpdateAuditContentConfReq {
+    //配置id
+    int32  id              = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+    //配置名称
+    string conf_title        = 2 [(gogoproto.moretags) = 'form:"conf_title" validate:"required"'];
+    //生效范围  0 表示直播间 1表示全局
+    int32  conf_type        = 3 [(gogoproto.moretags) = 'form:"conf_type"'];
+    //配置开始时间  时间格式为 2006-01-02 15:04:05
+    string start_time       = 4 [(gogoproto.moretags) = 'form:"start_time" validate:"required"'];
+    //配置关闭时间  时间格式为 2006-01-02 15:04:05
+    string end_time         = 5 [(gogoproto.moretags) = 'form:"end_time" validate:"required"'];
+    //配置生效房间号
+    repeated int32 roomids = 6 [(gogoproto.moretags) = 'form:"roomids"'];
+}
+
+message DeleteAuditContentConfReq {
+    //配置id
+    int32  id        = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+}
+
+message GetAuditContentConfReq {
+    //配置id
+    int32  id        = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+}
+
+message GetAuditContentConfResp {
+    //配置id
+    int32  id              = 1 [(gogoproto.jsontag) = "id"];
+    //配置名称
+    string conf_title        = 2 [(gogoproto.jsontag) = "conf_title"];
+    //生效范围  0 表示直播间 1表示全局
+    int32  conf_type        = 3 [(gogoproto.jsontag) = "conf_type"];
+    //配置开始时间  时间格式为 2006-01-02 15:04:05
+    string start_time       = 4 [(gogoproto.jsontag) = "start_time" ];
+    //配置关闭时间  时间格式为 2006-01-02 15:04:05
+    string end_time         = 5 [(gogoproto.jsontag) = "end_time"];
+    //配置生效房间号
+    repeated int32 roomids = 6 [(gogoproto.jsontag) = "roomids"];
+}
+
+message SetAuditorNumReq {
+    //用户昵称
+    string uname = 1 [(gogoproto.moretags) = 'form:"uname" validate:"required"'];
+    //配置id
+    int32  id = 2 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+}
+
+message GetAuditorNumAndDanmuNumReq {
+    //配置id
+    int32  id        = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+}
+
+message GetAuditorNumAndDanmuNumResp {
+    int32 auditor_num = 1 [(gogoproto.jsontag) = "auditor_num"];
+    int32 danmu_num   = 2 [(gogoproto.jsontag) = "danmu_num"];
+}
+
+message GetDanmuListsReq {
+    //配置id
+    int32  id        = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+}
+
+message DanmuListInfo {
+    //弹幕信息
+    string msg      = 1 [(gogoproto.jsontag) = "msg"];
+    //用户昵称
+    string user_name = 2 [(gogoproto.jsontag) = "user_name"];
+    //用户uid
+    int32  uid      = 3 [(gogoproto.jsontag) = "uid"];
+    //弹幕发送房间号
+    int32  roomid   = 4 [(gogoproto.jsontag) = "roomid"];
+    //弹幕发送时间 时间格式为 2006-01-02 15:04:05
+    string send_time = 5 [(gogoproto.jsontag) = "send_time"];
+    // 弹幕数据内容
+    string msg_data  = 6 [(gogoproto.jsontag) = "msg_data"];
+}
+
+message GetDanmuListsResp {
+    repeated DanmuListInfo  data = 1 [(gogoproto.jsontag) = "data"];
+}
+
+message SetDanmuData {
+    //发送房间号
+    int32  roomid  = 1 [(gogoproto.moretags) = 'form:"roomid" validate:"required"'];
+    //发送弹幕内容
+    string msg_data = 2 [(gogoproto.moretags) = 'form:"msg_data" validate:"required"'];
+}
+
+message SetDanmuSendListReq {
+    //配置id
+    int32  id                   = 1 [(gogoproto.moretags) = 'form:"id" validate:"required"'];
+    //发送弹幕内容
+    repeated SetDanmuData data  = 2 [(gogoproto.moretags) = 'form:"data" validate:"required"'];
+}
+
+message AuditBanInfoReq{
+	//查询封禁信息uid
+	int32 uid = 1[(gogoproto.moretags)='form:"uid" validate:"required,gt=0"'];
+}
+message AuditBanInfoResp{
+	//查询对象当前封禁状态0未封禁,1封禁,-1查询出错未知
+	int32 status         = 1 [(gogoproto.jsontag)="status"];
+	//查询对象被封禁次数
+	int32 bancount       = 2 [(gogoproto.jsontag)="bancount"];
+	//上一次封禁开始时间
+	int32 last_ban_start = 3 [(gogoproto.jsontag)="last_ban_start"];
+	//上一次封禁结束时间,如果是永久封禁,这个是-1
+	int32 last_ban_end   = 4 [(gogoproto.jsontag)="last_ban_end"];
+}
+
+message AuditBanReq{
+    //封禁用户的uid
+    int32 uid =1 [(gogoproto.moretags)='form:"uid" validate:"required,gte=-1"'];
+	//封禁天数,永久封禁就传-1
+	int32 ban_days=2[(gogoproto.moretags)='form:"ban_days" validate:"required,gte=-1"'];
+	//操作者
+	string operator=3[(gogoproto.moretags)='form:"operator" validate:"required"'];
+	//封禁理由
+	string operate_reason=4[(gogoproto.moretags)='form:"operate_reason" vaildate:"required"'];
+	//封禁证据
+	string ban_evidence=5[(gogoproto.moretags)='form:"ban_evidence" validate:"required"'];
+}
