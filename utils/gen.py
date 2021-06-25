@@ -51,7 +51,7 @@ if __name__ == '__main__':
     pb2s = [p.replace(".py", "").replace("//", ".").strip("\n") for p in pb2_list if "gogo_pb2" not in p]
 
     for pb2 in pb2s:
-        pb = importlib.import_module("data.dm_pb2")
+        pb = importlib.import_module(pb2)
         pp = proto_to_dict.ServiceCaller(pb)
         _data = pp.call_all_services()
 
