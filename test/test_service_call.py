@@ -1,7 +1,6 @@
-from services.livelivedm import Livelivedm
+from services.api import Api
+
 if __name__ == '__main__':
-    livedm=Livelivedm()
-    r=livedm.SendMsg(uid=110000233, roomid=460460, msg="hello", rnd="hjhjkhkj")
-    r2=livedm.GetHistory(roomid=460460)
+    account_vip = Api()
+    r = account_vip.GetStreamBandWidth()
     print(r)
-    print(r2)

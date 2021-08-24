@@ -3,7 +3,8 @@ from copy import deepcopy
 TYPE_CPP2PY = {
     7: "bool",
     5: "float",
-    8: "ENUM",
+    # 8: "ENUM",
+    8: "dict",
     6: "float",
     1: "int",
     2: "int",
@@ -228,10 +229,18 @@ class ServiceCaller:
 
                 # 遍历service解析 输入 输出 参数
                 for _item_in in _item.input_type.fields:
-                    tag = 'required' if 'required' in _item_in._serialized_options.decode(errors='ignore') else 'optional'
+                    item_serialized_options = get_serialized_options(_item_in)
+                    tag = "optional"
+                    if item_serialized_options:
+                        tag = 'required' if 'required' in item_serialized_options.decode(
+                            errors='ignore') else 'optional'
                     _in_paras.append({_item_in.name: (_type_converter(_item_in.cpp_type), tag)})
                 for _item_out in _item.output_type.fields:
-                    tag = 'required' if 'required' in _item_out._serialized_options.decode(errors='ignore') else 'optional'
+                    item_serialized_options = get_serialized_options(_item_out)
+                    tag = "optional"
+                    if item_serialized_options:
+                        tag = 'required' if 'required' in get_serialized_options(_item_out).decode(
+                            errors='ignore') else 'optional'
                     _out_paras.append({_item_out.name: (_type_converter(_item_out.cpp_type), tag)})
                 _temp_service_dict['input'] = _in_paras
                 _temp_service_dict['output'] = _out_paras
@@ -294,6 +303,10 @@ def handle_for_service_name(name):
     if idx != -1 and t_str[idx + 1:].isdigit():
         temp.remove(t_str)
     return temp
+
+
+def get_serialized_options(item):
+    return getattr(item, "_serialized_options", None)
 
 # def nested_parser():
 #     """

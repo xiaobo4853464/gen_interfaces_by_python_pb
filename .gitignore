@@ -2,3 +2,5 @@ venv/
 *.log
 .idea/
 /data/go-live
+/go-live
+__pycache__

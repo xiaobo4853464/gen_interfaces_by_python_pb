@@ -1,0 +1,12 @@
+# Generate by automation,Do not modify it. @xiaobo
+from invoker.http import BaseClient, grpc_proxy
+
+
+class {{data.cls_name}}(BaseClient):
+    SERVICE_NAME="{{data.service_name}}"
+
+    {% for i in data.interfaces %}
+    @grpc_proxy(path="{{i.path}}")
+    def {{i.method_name}}(self,{{i.args}}):
+        """"""
+    {% endfor %}

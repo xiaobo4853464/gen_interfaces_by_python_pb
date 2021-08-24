@@ -1,7 +1,7 @@
 import importlib
-import json
 import os
 
+from jinja2 import PackageLoader, Environment
 from utils import proto_to_dict
 
 
@@ -9,8 +9,8 @@ def gen_service_cls(pb, data):
     svc = pb.call_service_name()
     values = data
     v = list(values.values())
-    clz_name = svc.replace(".", "").capitalize()
-    l = []
+    clz_name = "".join([word.capitalize() for word in svc.split(".")])
+    interfaces = []
     for i in v:
         def get_args():
             for ii in i['input']:
@@ -25,37 +25,41 @@ def gen_service_cls(pb, data):
         tl = list(get_args())
         ll = sorted(tl, key=lambda x: "=None" in x)
         args = ", ".join(ll)
+        interface = {"path": i['full_name'], "method_name": i['name'], "args": args}
+        interfaces.append(interface)
 
-        interface_desc = f"""
-    @grpc_proxy(path="{i['full_name']}")
-    def {i['name']}(self,{args}):
-        \"\"\""\"\"\n"""
-        l.append(interface_desc)
+    data = {"cls_name": clz_name, "service_name": svc, "interfaces": interfaces}
+    env = Environment(
+        loader=PackageLoader("data", "templates"),
+        keep_trailing_newline=True,
+        line_statement_prefix="##",
+        line_comment_prefix="###",
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+    t = env.get_template("cls_demo")
+    content = t.render(data=data)
+    print(content)
 
-    template = f"""# Generate by automation,Do not modify it. @xiaobo
-from invoker.http import BaseClient, grpc_proxy
-
-
-class {clz_name}(BaseClient):
-    SERVICE_NAME="{svc}"
-            {"".join(l)}
-        """
     with open(f"services/{clz_name.lower()}.py", "w") as f:
-        f.write(template)
+        f.write(content)
 
 
 if __name__ == '__main__':
     # 拿data下的所有proto
-    pb2_list = os.popen("find data/ -name *_pb2.py").readlines()
+    pb2_list = os.popen("find bapis_python -name *_pb2.py").readlines()
     # 过滤不需要解析的proto
-    pb2s = [p.replace(".py", "").replace("//", ".").strip("\n") for p in pb2_list if "gogo_pb2" not in p]
+
+    pb2s = [p.replace(".py", "").replace("/", ".").strip("\n") for p in pb2_list if "gogo_pb2" not in p]
 
     for pb2 in pb2s:
         pb = importlib.import_module(pb2)
         pp = proto_to_dict.ServiceCaller(pb)
         _data = pp.call_all_services()
 
-        with open("services/f.json", "w") as f:
-            json.dump(_data, f, indent=4)
         # 生成service class
-        gen_service_cls(pp, _data)
+        try:
+            gen_service_cls(pp, _data)
+        except TypeError as e:
+            print(repr(e))
+            continue
