@@ -3,5 +3,5 @@ from invoker.http import BaseClient, grpc_proxy
 
 
 class Ecode(BaseClient):
-    SERVICE_NAME="ecode"
+    SERVICE_NAME = "ecode"
 

@@ -3,6 +3,7 @@ import os
 
 from jinja2 import PackageLoader, Environment
 from utils import proto_to_dict
+from utils.formatter import to_underline
 
 
 def gen_service_cls(pb, data):
@@ -16,14 +17,14 @@ def gen_service_cls(pb, data):
             for ii in i['input']:
                 for _k, _v in ii.items():
                     arg, (_type, tag) = _k, _v
-                    ori = f"{arg}:{_type}"
+                    ori = f"{arg}: {_type}"
                     if tag != 'required':
-                        "level:str=None"
-                        ori += "=None"
+                        "level : str = None"
+                        ori += " = None"
                     yield ori
 
         tl = list(get_args())
-        ll = sorted(tl, key=lambda x: "=None" in x)
+        ll = sorted(tl, key=lambda x: " = None" in x)
         args = ", ".join(ll)
         interface = {"path": i['full_name'], "method_name": i['name'], "args": args}
         interfaces.append(interface)
@@ -41,7 +42,7 @@ def gen_service_cls(pb, data):
     content = t.render(data=data)
     print(content)
 
-    with open(f"services/{clz_name.lower()}.py", "w") as f:
+    with open(f"services/{to_underline(clz_name).lower()}.py", "w") as f:
         f.write(content)
 
 

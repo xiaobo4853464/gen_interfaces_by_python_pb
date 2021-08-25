@@ -3,5 +3,5 @@ from invoker.http import BaseClient, grpc_proxy
 
 
 class Vote(BaseClient):
-    SERVICE_NAME="vote"
+    SERVICE_NAME = "vote"
 

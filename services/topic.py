@@ -3,5 +3,5 @@ from invoker.http import BaseClient, grpc_proxy
 
 
 class Topic(BaseClient):
-    SERVICE_NAME="topic"
+    SERVICE_NAME = "topic"
 

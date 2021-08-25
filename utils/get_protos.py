@@ -1,3 +1,6 @@
+"""
+通过proto 文件生成python pb 描述文件。需要进一步开发。
+"""
 import importlib
 import os
 from shutil import copy

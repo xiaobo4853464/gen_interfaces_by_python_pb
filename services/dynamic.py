@@ -3,5 +3,5 @@ from invoker.http import BaseClient, grpc_proxy
 
 
 class Dynamic(BaseClient):
-    SERVICE_NAME="dynamic"
+    SERVICE_NAME = "dynamic"
 
